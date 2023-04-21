@@ -1,0 +1,1088 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyMSM+ugWzP++NNS4S4DuPI9",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    },
+    "accelerator": "GPU",
+    "gpuClass": "standard"
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/jslee0110/.2023-1aidl/blob/main/midterm%20notes\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-normalizing data by dividing 255\n",
+        "####**looking back at our first example**-결과는 비슷하고 training speed만 다름"
+      ],
+      "metadata": {
+        "id": "3frNqVwRm8_t"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-how many samples in mnist test dataset"
+      ],
+      "metadata": {
+        "id": "Bg_5s5zBnR1V"
+      }
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "L87IoxBUm6Jx"
+      },
+      "outputs": [],
+      "source": [
+        "test_images.shape\n",
+        "#첫번째 값"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-what is dimension for each data"
+      ],
+      "metadata": {
+        "id": "m1elUpnRnZEx"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "test_images.ndim"
+      ],
+      "metadata": {
+        "id": "z78lE8DknehL"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-create a 3d tensor object"
+      ],
+      "metadata": {
+        "id": "y9uYIkeKn9-N"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import numpy as np\n",
+        "\n",
+        "# Create a 3D tensor with shape (2, 3, 4)\n",
+        "tensor_3d = np.array([[[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],\n",
+        "                      [[13, 14, 15, 16], [17, 18, 19, 20], [21, 22, 23, 24]]])\n"
+      ],
+      "metadata": {
+        "id": "-XWVE4isoDEe"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-try to visualize the 1st digit from mnist test dataset"
+      ],
+      "metadata": {
+        "id": "DbykA0vRoOYs"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from tensorflow.keras.datasets import mnist\n",
+        "(train_images, train_labels), (test_images, test_labels) = mnist.load_data()\n",
+        "import matplotlib.pyplot as plt\n",
+        "digit = test_images[0]\n",
+        "plt.imshow(digit, cmap=plt.cm.binary)\n",
+        "plt.show()"
+      ],
+      "metadata": {
+        "id": "vAw-Lj4loz_p"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-try to use naive version of relu and add functions"
+      ],
+      "metadata": {
+        "id": "5ev-uwQ3pIG-"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import numpy as np\n",
+        "x=np.numpy([1,2,3],[1,0,-4])\n",
+        "naive.relu(x)"
+      ],
+      "metadata": {
+        "id": "BMZGs0BTpMXE"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-why we use x.copy"
+      ],
+      "metadata": {
+        "id": "cIsXrHeKpV9e"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "  x = x.copy()\n",
+        "  #없으면 original x가 바뀐다.(y가 바뀌면 x도 바뀜)\n",
+        "  y=x가 아니라 y=x.copy()로 사용"
+      ],
+      "metadata": {
+        "id": "5zi54b-hpaM7"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-why the naive version of the code slower?"
+      ],
+      "metadata": {
+        "id": "RFh1KoASpsAw"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#Compiler optimizations: The optimized version of the code might take advantage of compiler optimizations, such as loop unrolling, vectorization, or inlining,\n",
+        "#which can result in faster performance. The naive version of the code might not take advantage of these optimizations or might even prevent them from being \n",
+        "#applied due to the way the code is written.\n"
+      ],
+      "metadata": {
+        "id": "0Sw-ZZcXprxI"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-say x,y are scalar, find derivatives of f(x,y)=x^2+xy+3y with respect to s and y(set x=2,y=1 for the calculation)"
+      ],
+      "metadata": {
+        "id": "QjjtHIu9qLQg"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import numpy as np\n",
+        "import tensorflow as tf\n",
+        "\n",
+        "x = tf.Variable(tf.constant(2.), dtype = tf.float32)\n",
+        "y = tf.Variable(tf.constant(1.), dtype = tf.float32)\n",
+        "\n",
+        "f_xy = x*x*y + x*y + 3*y\n",
+        "\n",
+        "with tf.GradientTape() as tape:\n",
+        "    z = x**2 * y + x*y + 3*y\n",
+        "\n",
+        "grad_of_x_y_ = tape.gradient(z, [x, y])\n",
+        "\n",
+        "grad_of_x_y_"
+      ],
+      "metadata": {
+        "id": "477-sU4eo8t4"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-set x,W and b as following code. Find derivatives of f(W,b)=(xW+b)^3 with respect to W and b(search for tf.pow())"
+      ],
+      "metadata": {
+        "id": "U5RNKjvOq4Ed"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "W = tf.Variable(tf.random.uniform((3, 2)), dtype=tf.float32)\n",
+        "b = tf.Variable(tf.zeros((2,)), dtype=tf.float32)\n",
+        "x = tf.constant(np.array([1.,4.,3.]).reshape(1,3), dtype=tf.float32)\n",
+        "with tf.GradientTape() as tape:\n",
+        "    y = tf.pow(tf.matmul(x, W) + b, 3)\n",
+        "grad_of_y_wrt_W_and_b = tape.gradient(y, [W, b])\n",
+        "\n",
+        "grad_of_y_wrt_W_and_b"
+      ],
+      "metadata": {
+        "id": "X23RgpOSrKHQ"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-Modify our data: \n",
+        "num_samples_per_class = 500\n",
+        "negative_samples = np.random.multivariate_normal( mean=[2, 3], cov=[[1, 0.2],[0.5, 1]], size=num_samples_per_class) positive_samples = np.random.multivariate_normal( mean=[3, 1], cov=[[1, 0.5],[0.5, 1]], size=num_samples_per_class)\n",
+        "\n",
+        "###-Train the similar model using our modified data\n",
+        "(Hint: If something going weird, try to modify learning rate)"
+      ],
+      "metadata": {
+        "id": "e4yGQIFfrTgn"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "num_samples_per_class = 500\n",
+        "negative_samples = np.random.multivariate_normal(\n",
+        "    mean=[2, 3],\n",
+        "    cov=[[1, 0.2],[0.5, 1]],\n",
+        "    size=num_samples_per_class)\n",
+        "positive_samples = np.random.multivariate_normal(\n",
+        "    mean=[3, 1],\n",
+        "    cov=[[1, 0.5],[0.5, 1]],\n",
+        "    size=num_samples_per_class)"
+      ],
+      "metadata": {
+        "id": "caJItNgDrpn0"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "learning_rate = 0.05\n",
+        "\n",
+        "def training_step(inputs, targets):\n",
+        "    with tf.GradientTape() as tape:\n",
+        "        predictions = model(inputs)\n",
+        "        loss = square_loss(targets, predictions)\n",
+        "    grad_loss_wrt_W, grad_loss_wrt_b = tape.gradient(loss, [W, b])\n",
+        "    W.assign_sub(grad_loss_wrt_W * learning_rate)\n",
+        "    b.assign_sub(grad_loss_wrt_b * learning_rate)\n",
+        "    return loss\n",
+        "\n",
+        "#the batch training loop\n",
+        "for step in range(40):\n",
+        "    loss = training_step(inputs, targets)\n",
+        "    print(f\"Loss at step {step}: {loss:.4f}\")\n",
+        "     \n",
+        "#plot\n",
+        "\n",
+        "predictions = model(inputs)\n",
+        "plt.scatter(inputs[:, 0], inputs[:, 1], c=predictions[:, 0] > 0.5)\n",
+        "plt.show()"
+      ],
+      "metadata": {
+        "id": "NNZcYLFGryYA"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**data=movie reviews**"
+      ],
+      "metadata": {
+        "id": "6CSTCwytsIZf"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-try using one or three hidden layers, and see how doing so affects validation and test accuracy\n",
+        "*loss 감소, accuracy 증가하는게 중요*"
+      ],
+      "metadata": {
+        "id": "0GKWCuvysXRi"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from tensorflow.keras.datasets import imdb\n",
+        "(train_data, train_labels), (test_data, test_labels) = imdb.load_data(\n",
+        "    num_words=10000)\n",
+        "from tensorflow import keras\n",
+        "from tensorflow.keras import layers\n",
+        "model = keras.Sequential([\n",
+        "    layers.Dense(16, activation=\"relu\"),\n",
+        "    layers.Dense(16, activation=\"relu\"),\n",
+        "    layers.Dense(1, activation=\"sigmoid\")\n",
+        "])\n",
+        "#use on hidden layer\n",
+        "from tensorflow import keras\n",
+        "from tensorflow.keras import layers\n",
+        "\n",
+        "model = keras.Sequential([\n",
+        "    layers.Dense(16, activation=\"relu\"),\n",
+        "])\n",
+        "#plot of validation accuracy\n",
+        "history = model.fit(partial_x_train,\n",
+        "                    partial_y_train,\n",
+        "                    epochs=20,\n",
+        "                    batch_size=512,\n",
+        "                    validation_data=(x_val, y_val))\n",
+        "history_dict = history.history\n",
+        "history_dict.keys()\n",
+        "import matplotlib.pyplot as plt\n",
+        "plt.clf()\n",
+        "acc = history_dict[\"accuracy\"]\n",
+        "val_acc = history_dict[\"val_accuracy\"]\n",
+        "plt.plot(epochs, acc, \"bo\", label=\"Training acc\")\n",
+        "plt.plot(epochs, val_acc, \"b\", label=\"Validation acc\")\n",
+        "plt.title(\"Training and validation accuracy\")\n",
+        "plt.xlabel(\"Epochs\")\n",
+        "plt.ylabel(\"Accuracy\")\n",
+        "plt.legend()\n",
+        "plt.show()\n",
+        "#plot of validation loss\n",
+        "import matplotlib.pyplot as plt\n",
+        "history_dict = history.history\n",
+        "loss_values = history_dict[\"loss\"]\n",
+        "val_loss_values = history_dict[\"val_loss\"]\n",
+        "epochs = range(1, len(loss_values) + 1)\n",
+        "plt.plot(epochs, loss_values, \"bo\", label=\"Training loss\")\n",
+        "plt.plot(epochs, val_loss_values, \"b\", label=\"Validation loss\")\n",
+        "plt.title(\"Training and validation loss\")\n",
+        "plt.xlabel(\"Epochs\")\n",
+        "plt.ylabel(\"Loss\")\n",
+        "plt.legend()\n",
+        "plt.show()\n"
+      ],
+      "metadata": {
+        "id": "k71QkTZtsgLV"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [],
+      "metadata": {
+        "id": "G9QVh7I8tWqP"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-try using the mse loss function instead of binary_crossentropy"
+      ],
+      "metadata": {
+        "id": "oBEtCTvlt_eH"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#model.compile에서  loss=tf.keras.losses.MeanSquareError() 이떼 미리 tensorflow 불러온 상태여야 함"
+      ],
+      "metadata": {
+        "id": "Bqqxi4lJu9KY"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "model = keras.Sequential([\n",
+        "    layers.Dense(16, activation=\"relu\"),\n",
+        "    layers.Dense(16, activation=\"relu\"),\n",
+        "    layers.Dense(1, activation=\"sigmoid\")\n",
+        "])\n",
+        "model.compile(optimizer=\"rmsprop\",\n",
+        "              loss=\"binary_crossentropy\", #이때 대신에 \"mse\"\n",
+        "              metrics=[\"accuracy\"])\n",
+        "model.fit(x_train, y_train, epochs=4, batch_size=512)\n",
+        "results = model.evaluate(x_test, y_test)\n",
+        "results"
+      ],
+      "metadata": {
+        "id": "T7uralGquhd_"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-try using the tanh activation instead of relu"
+      ],
+      "metadata": {
+        "id": "HVLv2z5iuoI4"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "model = keras.Sequential([\n",
+        "    keras.layers.Flatten(input_shape=(28, 28)),\n",
+        "    keras.layers.Dense(128, activation='tanh'),\n",
+        "    keras.layers.Dense(10, activation='softmax')\n",
+        "])"
+      ],
+      "metadata": {
+        "id": "scUtGsleun0u"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**newswire broadcasing data**"
+      ],
+      "metadata": {
+        "id": "xvK2J2iRvkM-"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-try using larger or smaller layers"
+      ],
+      "metadata": {
+        "id": "pW0LAvs8vtoQ"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Define the model with larger layers\n",
+        "model = keras.Sequential([\n",
+        "    keras.layers.Flatten(input_shape=(28, 28)),\n",
+        "    keras.layers.Dense(256, activation='relu'),\n",
+        "    keras.layers.Dense(128, activation='relu'),\n",
+        "    keras.layers.Dense(10, activation='softmax')\n",
+        "])\n",
+        "# Define the model with smaller layers\n",
+        "model = keras.Sequential([\n",
+        "    keras.layers.Flatten(input_shape=(28, 28)),\n",
+        "    keras.layers.Dense(64, activation='relu'),\n",
+        "    keras.layers.Dense(32, activation='relu'),\n",
+        "    keras.layers.Dense(10, activation='softmax')\n",
+        "])\n"
+      ],
+      "metadata": {
+        "id": "QH3rPldBvs-2"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-try using small or large number of units per layer"
+      ],
+      "metadata": {
+        "id": "CriVEODNwyv2"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Define the model with a small number of units per layer\n",
+        "model = keras.Sequential([\n",
+        "    keras.layers.Flatten(input_shape=(28, 28)),\n",
+        "    keras.layers.Dense(32, activation='relu'),\n",
+        "    keras.layers.Dense(10, activation='softmax')\n",
+        "])\n",
+        "# Define the model with a large number of units per layer\n",
+        "model = keras.Sequential([\n",
+        "    keras.layers.Flatten(input_shape=(28, 28)),\n",
+        "    keras.layers.Dense(512, activation='relu'),\n",
+        "    keras.layers.Dense(10, activation='softmax')\n",
+        "])\n"
+      ],
+      "metadata": {
+        "id": "x_RJLg4Nw1sG"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-from training the same model on MNIST data with noise channels or all-zero channels, Add validation accuracy of original data for mnist data"
+      ],
+      "metadata": {
+        "id": "h8fN26dtxqzo"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#Adding white-noise channels or all-zeros channels to MNIST\n",
+        "\n",
+        "from tensorflow.keras.datasets import mnist\n",
+        "import numpy as np\n",
+        "\n",
+        "(train_images, train_labels), _ = mnist.load_data()\n",
+        "train_images = train_images.reshape((60000, 28 * 28))\n",
+        "train_images = train_images.astype(\"float32\") / 255\n",
+        "\n",
+        "train_images_with_noise_channels = np.concatenate(\n",
+        "    [train_images, np.random.random((len(train_images), 784))], axis=1)\n",
+        "\n",
+        "train_images_with_zeros_channels = np.concatenate(\n",
+        "    [train_images, np.zeros((len(train_images), 784))], axis=1)\n",
+        "\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "C9yiVtJKx7c_",
+        "outputId": "82b9e80e-5a6d-48d0-fe2b-a8973077b05b"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz\n",
+            "11490434/11490434 [==============================] - 0s 0us/step\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#Training the same model on MNIST data with noise channels or all-zero channels\n",
+        "\n",
+        "from tensorflow import keras\n",
+        "from tensorflow.keras import layers\n",
+        "\n",
+        "def get_model():\n",
+        "    model = keras.Sequential([\n",
+        "        layers.Dense(512, activation=\"relu\"),\n",
+        "        layers.Dense(10, activation=\"softmax\")\n",
+        "    ])\n",
+        "    model.compile(optimizer=\"rmsprop\",\n",
+        "                  loss=\"sparse_categorical_crossentropy\",\n",
+        "                  metrics=[\"accuracy\"])\n",
+        "    return model\n",
+        "\n",
+        "model = get_model()\n",
+        "history_noise = model.fit(\n",
+        "    train_images_with_noise_channels, train_labels,\n",
+        "    epochs=10,\n",
+        "    batch_size=128,\n",
+        "    validation_split=0.2)\n",
+        "\n",
+        "model = get_model()\n",
+        "history_zeros = model.fit(\n",
+        "    train_images_with_zeros_channels, train_labels,\n",
+        "    epochs=10,\n",
+        "    batch_size=128,\n",
+        "    validation_split=0.2)\n",
+        "model = get_model()\n",
+        "history_original = model.fit(\n",
+        "    train_images, train_labels,\n",
+        "    epochs=10,\n",
+        "    batch_size=128,\n",
+        "    validation_split=0.2)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "LyMyyzbhygD0",
+        "outputId": "c451b952-3e2c-4c1d-d0b5-b8bce027295e"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Epoch 1/10\n",
+            "375/375 [==============================] - 17s 41ms/step - loss: 0.6179 - accuracy: 0.8119 - val_loss: 0.3611 - val_accuracy: 0.8867\n",
+            "Epoch 2/10\n",
+            "375/375 [==============================] - 8s 21ms/step - loss: 0.2523 - accuracy: 0.9222 - val_loss: 0.2112 - val_accuracy: 0.9340\n",
+            "Epoch 3/10\n",
+            "375/375 [==============================] - 7s 18ms/step - loss: 0.1659 - accuracy: 0.9492 - val_loss: 0.1716 - val_accuracy: 0.9503\n",
+            "Epoch 4/10\n",
+            "375/375 [==============================] - 8s 21ms/step - loss: 0.1202 - accuracy: 0.9625 - val_loss: 0.1369 - val_accuracy: 0.9596\n",
+            "Epoch 5/10\n",
+            "375/375 [==============================] - 8s 21ms/step - loss: 0.0865 - accuracy: 0.9726 - val_loss: 0.1258 - val_accuracy: 0.9618\n",
+            "Epoch 6/10\n",
+            "375/375 [==============================] - 7s 18ms/step - loss: 0.0647 - accuracy: 0.9799 - val_loss: 0.1113 - val_accuracy: 0.9677\n",
+            "Epoch 7/10\n",
+            "375/375 [==============================] - 8s 21ms/step - loss: 0.0487 - accuracy: 0.9840 - val_loss: 0.2247 - val_accuracy: 0.9388\n",
+            "Epoch 8/10\n",
+            "375/375 [==============================] - 7s 18ms/step - loss: 0.0344 - accuracy: 0.9889 - val_loss: 0.1144 - val_accuracy: 0.9698\n",
+            "Epoch 9/10\n",
+            "375/375 [==============================] - 10s 28ms/step - loss: 0.0256 - accuracy: 0.9921 - val_loss: 0.1397 - val_accuracy: 0.9644\n",
+            "Epoch 10/10\n",
+            "375/375 [==============================] - 11s 31ms/step - loss: 0.0189 - accuracy: 0.9944 - val_loss: 0.1252 - val_accuracy: 0.9684\n",
+            "Epoch 1/10\n",
+            "375/375 [==============================] - 9s 22ms/step - loss: 0.3003 - accuracy: 0.9146 - val_loss: 0.1606 - val_accuracy: 0.9553\n",
+            "Epoch 2/10\n",
+            "375/375 [==============================] - 8s 20ms/step - loss: 0.1246 - accuracy: 0.9648 - val_loss: 0.1110 - val_accuracy: 0.9668\n",
+            "Epoch 3/10\n",
+            "375/375 [==============================] - 7s 20ms/step - loss: 0.0807 - accuracy: 0.9763 - val_loss: 0.0954 - val_accuracy: 0.9721\n",
+            "Epoch 4/10\n",
+            "375/375 [==============================] - 9s 24ms/step - loss: 0.0586 - accuracy: 0.9824 - val_loss: 0.0842 - val_accuracy: 0.9744\n",
+            "Epoch 5/10\n",
+            "375/375 [==============================] - 9s 23ms/step - loss: 0.0436 - accuracy: 0.9874 - val_loss: 0.0773 - val_accuracy: 0.9761\n",
+            "Epoch 6/10\n",
+            "375/375 [==============================] - 12s 33ms/step - loss: 0.0322 - accuracy: 0.9909 - val_loss: 0.0756 - val_accuracy: 0.9778\n",
+            "Epoch 7/10\n",
+            "375/375 [==============================] - 12s 31ms/step - loss: 0.0248 - accuracy: 0.9932 - val_loss: 0.0780 - val_accuracy: 0.9782\n",
+            "Epoch 8/10\n",
+            "375/375 [==============================] - 13s 35ms/step - loss: 0.0189 - accuracy: 0.9946 - val_loss: 0.0759 - val_accuracy: 0.9775\n",
+            "Epoch 9/10\n",
+            "375/375 [==============================] - 8s 22ms/step - loss: 0.0138 - accuracy: 0.9964 - val_loss: 0.0844 - val_accuracy: 0.9769\n",
+            "Epoch 10/10\n",
+            "375/375 [==============================] - 7s 19ms/step - loss: 0.0103 - accuracy: 0.9975 - val_loss: 0.0761 - val_accuracy: 0.9801\n",
+            "Epoch 1/10\n",
+            "375/375 [==============================] - 4s 11ms/step - loss: 0.2980 - accuracy: 0.9154 - val_loss: 0.1538 - val_accuracy: 0.9546\n",
+            "Epoch 2/10\n",
+            "375/375 [==============================] - 4s 10ms/step - loss: 0.1243 - accuracy: 0.9641 - val_loss: 0.1089 - val_accuracy: 0.9688\n",
+            "Epoch 3/10\n",
+            "375/375 [==============================] - 5s 13ms/step - loss: 0.0815 - accuracy: 0.9764 - val_loss: 0.0873 - val_accuracy: 0.9751\n",
+            "Epoch 4/10\n",
+            "375/375 [==============================] - 4s 11ms/step - loss: 0.0580 - accuracy: 0.9831 - val_loss: 0.0878 - val_accuracy: 0.9743\n",
+            "Epoch 5/10\n",
+            "375/375 [==============================] - 5s 14ms/step - loss: 0.0440 - accuracy: 0.9870 - val_loss: 0.0793 - val_accuracy: 0.9764\n",
+            "Epoch 6/10\n",
+            "375/375 [==============================] - 8s 21ms/step - loss: 0.0336 - accuracy: 0.9900 - val_loss: 0.0798 - val_accuracy: 0.9775\n",
+            "Epoch 7/10\n",
+            "375/375 [==============================] - 5s 15ms/step - loss: 0.0254 - accuracy: 0.9924 - val_loss: 0.0749 - val_accuracy: 0.9783\n",
+            "Epoch 8/10\n",
+            "375/375 [==============================] - 7s 17ms/step - loss: 0.0189 - accuracy: 0.9950 - val_loss: 0.0794 - val_accuracy: 0.9778\n",
+            "Epoch 9/10\n",
+            "375/375 [==============================] - 7s 20ms/step - loss: 0.0144 - accuracy: 0.9966 - val_loss: 0.0760 - val_accuracy: 0.9787\n",
+            "Epoch 10/10\n",
+            "375/375 [==============================] - 6s 16ms/step - loss: 0.0104 - accuracy: 0.9977 - val_loss: 0.0843 - val_accuracy: 0.9778\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#Plotting a validation accuracy comparison\n",
+        "\n",
+        "import matplotlib.pyplot as plt\n",
+        "val_acc_noise = history_noise.history[\"val_accuracy\"]\n",
+        "val_acc_zeros = history_zeros.history[\"val_accuracy\"]\n",
+        "val_acc = history_original.history[\"val_accuracy\"]\n",
+        "epochs = range(1, 11)\n",
+        "plt.plot(epochs, val_acc_noise, \"b-\",\n",
+        "         label=\"Validation accuracy with noise channels\")\n",
+        "plt.plot(epochs, val_acc_zeros, \"b--\",\n",
+        "         label=\"Validation accuracy with zeros channels\")\n",
+        "plt.plot(epochs, val_acc, \"r--\",\n",
+        "         label=\"Validation accuracy with original data\")\n",
+        "# plt.ylim(0.88,1)\n",
+        "# plt.xlim(1,10)\n",
+        "plt.title(\"Effect of noise channels on validation accuracy\")\n",
+        "plt.xlabel(\"Epochs\")\n",
+        "plt.ylabel(\"Accuracy\")\n",
+        "plt.legend()"
+      ],
+      "metadata": {
+        "id": "K8yXHSDoyifV"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-fitting a mnist model with randomly shuffled labels. Visualize training accuracy and validation accuracy"
+      ],
+      "metadata": {
+        "id": "QkkNFl8VyqeS"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import matplotlib.pyplot as plt\n",
+        "train_acc = historya_bad.history[\"accuracy\"]\n",
+        "val_acc = historya_bad.history[\"val_accuracy\"]\n",
+        "\n",
+        "epochs = range(1, 101)\n",
+        "\n",
+        "plt.plot(epochs, train_acc, \"r-\",\n",
+        "         label=\"train_accuracy\")\n",
+        "\n",
+        "plt.plot(epochs, val_acc, \"b-\",\n",
+        "         label=\"Validation_accuracy\")\n",
+        "\n",
+        "plt.title(\"Effect on validation accuracy\")\n",
+        "plt.xlabel(\"Epochs\")\n",
+        "plt.ylabel(\"accuracy\")\n",
+        "plt.legend()"
+      ],
+      "metadata": {
+        "id": "4KJ878Ghy1CS"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-from turning key gradient descent parameters, modify learning rates and check when model fails->when the learning rate is too low or too high."
+      ],
+      "metadata": {
+        "id": "-IvJqalPhl1E"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "model.compile(optimizer=keras.optimizers.RMSprop(1e-2),\n",
+        "              loss=\"sparse_categorical_crossentropy\",\n",
+        "              metrics=[\"accuracy\"])\n",
+        "#이때 learning rate는 RMSprop()에 있는 숫자를 의미함"
+      ],
+      "metadata": {
+        "id": "hUSKwCtbidCJ"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-visualize validation loss of the original model, model with lower capacity and model with larger capacity"
+      ],
+      "metadata": {
+        "id": "FAIAuwnBh_jv"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#Version of the model with lower capacity\n",
+        "\n",
+        "model = keras.Sequential([\n",
+        "    layers.Dense(4, activation=\"relu\"),  #capacity:4\n",
+        "    layers.Dense(4, activation=\"relu\"),\n",
+        "    layers.Dense(1, activation=\"sigmoid\")\n",
+        "])\n",
+        "model.compile(optimizer=\"rmsprop\",\n",
+        "              loss=\"binary_crossentropy\",\n",
+        "              metrics=[\"accuracy\"])\n",
+        "history_smaller_model = model.fit(\n",
+        "    train_data, train_labels,\n",
+        "    epochs=20, batch_size=512, validation_split=0.4)"
+      ],
+      "metadata": {
+        "id": "-NM0CpRSikcD"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#Version of the model with higher capacity\n",
+        "\n",
+        "model = keras.Sequential([\n",
+        "    layers.Dense(512, activation=\"relu\"),\n",
+        "    layers.Dense(512, activation=\"relu\"),\n",
+        "    layers.Dense(1, activation=\"sigmoid\")\n",
+        "])\n",
+        "model.compile(optimizer=\"rmsprop\",\n",
+        "              loss=\"binary_crossentropy\",\n",
+        "              metrics=[\"accuracy\"])\n",
+        "history_larger_model = model.fit(\n",
+        "    train_data, train_labels,\n",
+        "    epochs=20, batch_size=512, validation_split=0.4)"
+      ],
+      "metadata": {
+        "id": "VTsIJZMViz06"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-visualize validation loss of the original model and model with dropout"
+      ],
+      "metadata": {
+        "id": "_tMtP7erj7a6"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#Adding dropout to the IMDB model\n",
+        "\n",
+        "from tensorflow import keras\n",
+        "from tensorflow.keras import layers\n",
+        "model = keras.Sequential([\n",
+        "    layers.Dense(16, activation=\"relu\"),\n",
+        "    layers.Dropout(0.5),\n",
+        "    layers.Dense(16, activation=\"relu\"),\n",
+        "    layers.Dropout(0.5),\n",
+        "    layers.Dense(1, activation=\"sigmoid\")\n",
+        "])\n",
+        "model.compile(optimizer=\"rmsprop\",\n",
+        "              loss=\"binary_crossentropy\",\n",
+        "              metrics=[\"accuracy\"])\n",
+        "history_dropout = model.fit(\n",
+        "    train_data, train_labels,\n",
+        "    epochs=20, batch_size=512, validation_split=0.4)\n",
+        "\n",
+        "\n",
+        "model = keras.Sequential([\n",
+        "    layers.Dense(16, activation=\"relu\"),\n",
+        "    layers.Dense(16, activation=\"relu\"),\n",
+        "    layers.Dense(1, activation=\"sigmoid\")\n",
+        "])\n",
+        "model.compile(optimizer=\"rmsprop\",\n",
+        "              loss=\"binary_crossentropy\",\n",
+        "              metrics=[\"accuracy\"])\n",
+        "history_original = model.fit(\n",
+        "    train_data, train_labels,\n",
+        "    epochs=20, batch_size=512, validation_split=0.4)\n",
+        "\n",
+        "\n",
+        "#drop_out방식과 orginial의 Validation loss 시각화를 통한 overfitting 비교\n",
+        "\n",
+        "import matplotlib.pyplot as plt\n",
+        "dropout_val_loss = history_dropout.history[\"val_loss\"]\n",
+        "original_val_loss = history_original.history[\"val_loss\"]\n",
+        "epochs = range(1, 21)\n",
+        "plt.plot(epochs, dropout_val_loss, \"b--\",\n",
+        "         label=\"drouout_val_loss\")\n",
+        "\n",
+        "plt.plot(epochs, original_val_loss, \"g--\",\n",
+        "         label=\"original_val_loss\")\n",
+        "\n",
+        "plt.title(\"Effect comparing with orginial one and drop_out one on validation loss\")\n",
+        "plt.xlabel(\"Epochs\")\n",
+        "plt.ylabel(\"Loss\")\n",
+        "plt.legend()"
+      ],
+      "metadata": {
+        "id": "3OC7dUcGkBu4"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-from multi input,multi output example, modify your funcional models by adding more dense layers and eliminating difficulty output"
+      ],
+      "metadata": {
+        "id": "z8oKpk89kQc3"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from tensorflow import keras\n",
+        "from tensorflow.keras import layers\n",
+        "\n",
+        "model = keras.Sequential([\n",
+        "    layers.Dense(64, activation=\"relu\"),\n",
+        "    layers.Dense(10, activation=\"softmax\")\n",
+        "])\n",
+        "model = keras.Sequential()\n",
+        "model.add(layers.Dense(64, activation=\"relu\"))\n",
+        "model.add(layers.Dense(10, activation=\"softmax\"))\n",
+        "\n",
+        "vocabulary_size = 10000\n",
+        "num_tags = 100\n",
+        "num_departments = 4\n",
+        "\n",
+        "title = keras.Input(shape=(vocabulary_size,), name=\"title\")\n",
+        "text_body = keras.Input(shape=(vocabulary_size,), name=\"text_body\")\n",
+        "tags = keras.Input(shape=(num_tags,), name=\"tags\")\n",
+        "\n",
+        "features = layers.Concatenate()([title, text_body, tags])\n",
+        "features = layers.Dense(64, activation=\"relu\")(features\n",
+        "\n",
+        "features = layers.Dense(36, activation=\"relu\")(features)\n",
+        "features = layers.Dense(24, activation=\"relu\")(features)\n",
+        "\n",
+        "priority = layers.Dense(1, activation=\"sigmoid\", name=\"priority\")(features)\n",
+        "department = layers.Dense(\n",
+        "    num_departments, activation=\"softmax\", name=\"department\")(features)\n",
+        "\n",
+        "model = keras.Model(inputs=[title, text_body, tags], outputs=[priority, department])\n",
+        "\n",
+        "#plot\n",
+        "new_model = keras.Model(\n",
+        "    inputs=[title, text_body, tags],\n",
+        "    outputs=[priority, department])\n",
+        "keras.utils.plot_model(new_model, \"updated_ticket_classifier.png\", show_shapes=True)"
+      ],
+      "metadata": {
+        "id": "YdJaZFZtki74"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-modify your fundtional model as adding difficulty output after 2nd layer"
+      ],
+      "metadata": {
+        "id": "C5YRwnGJlCkU"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#A multi-input, multi-output Functional model\n",
+        "\n",
+        "vocabulary_size = 10000\n",
+        "num_tags = 100\n",
+        "num_departments = 4\n",
+        "difficulty_size = 5\n",
+        "title = keras.Input(shape=(vocabulary_size,), name=\"title\")\n",
+        "text_body = keras.Input(shape=(vocabulary_size,), name=\"text_body\")\n",
+        "tags = keras.Input(shape=(num_tags,), name=\"tags\")\n",
+        "\n",
+        "features = layers.Concatenate()([title, text_body, tags])\n",
+        "features = layers.Dense(64, activation=\"relu\", name = \"dense_11\")(features)\n",
+        "dense_11 = layers.Dense(36, activation=\"relu\", name = \"dense_12\")(features)\n",
+        "dense_13 = layers.Dense(24, activation=\"relu\", name = \"dense_13\")(dense_11)\n",
+        "priority = layers.Dense(1, activation=\"sigmoid\", name=\"priority\")(dense_13)\n",
+        "difficulty = layers.Dense(3, activation=\"sigmoid\", name=\"difficulty\")(dense_11)\n",
+        "department = layers.Dense(\n",
+        "    num_departments, activation=\"softmax\", name=\"department\")(dense_13)\n",
+        "\n",
+        "model = keras.Model(inputs=[title, text_body, tags], outputs=[priority, department, difficulty])\n",
+        "\n",
+        "#difficulty 알맞은 위치에 삽입\n",
+        "#먼저 input,ouput 확인\n",
+        "model.layers[4].input\n",
+        "model.layers[5].output\n",
+        "#확인 후 위치에 맞게 삽입\n",
+        "features = model.layers[5].output\n",
+        "difficulty = layers.Dense(3, activation=\"softmax\", name=\"difficulty\")(features)\n",
+        "\n",
+        "new_model = keras.Model(\n",
+        "    inputs=[title, text_body, tags],\n",
+        "    outputs=[priority, department, difficulty])\n",
+        "keras.utils.plot_model(new_model, \"updated_ticket_classifier.png\", show_shapes=True)"
+      ],
+      "metadata": {
+        "id": "GS3UGRSSlJ1e"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###-from using callbacks, experiment with different parameters of EarlyStopping and ModelCheckpoint callbacks"
+      ],
+      "metadata": {
+        "id": "jpnsegMom7BS"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**EarlyStopping:**\n",
+        ">Adjust the \"patience\" parameter to control how many epochs to wait before stopping the training if the monitored quantity (e.g., validation loss) doesn't improve. For example, you can try setting patience to 5, 10, or 20 to see how it affects the training.\n",
+        "Experiment with different \"min_delta\" values to set the minimum change in the monitored quantity to be considered an improvement. This can be useful if your model's performance is plateauing, and you want to set a more strict criterion for improvement.\n",
+        "Try different modes for the monitoring quantity, such as \"max\" for accuracy or \"min\" for loss, to see how it affects the stopping behavior.\n",
+        "Use the \"restore_best_weights\" parameter to automatically restore the best model weights when training is stopped. This can be useful to avoid overfitting and ensure that you save the best-performing model.\n",
+        "\n",
+        "**ModelCheckpoint:**\n",
+        ">Experiment with different \"monitor\" quantities, such as \"val_loss\" or \"val_accuracy\", to determine which metric to use for saving the best weights.\n",
+        "Use the \"save_best_only\" parameter to save only the best model weights based on the monitored quantity. This can save disk space and reduce clutter.\n",
+        "Adjust the \"save_freq\" parameter to control how often to save the model weights during training. For example, you can set it to save every 5 or 10 epochs to avoid losing progress in case of a crash.\n",
+        "Try different file names and paths for the saved model weights to avoid overwriting previous saves and to organize your saved models."
+      ],
+      "metadata": {
+        "id": "GiPhgulKnrSO"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#EarlyStopping & ModelCheckpoint\n",
+        "callbacks_list = [\n",
+        "    keras.callbacks.EarlyStopping(\n",
+        "        monitor=\"val_accuracy\",  #val_loss등으로 바꾼다.(mc)\n",
+        "        patience=0, #patience 숫자를 바꿔주며 training에 어떤 영향을 주는지 알아본다.(es)\n",
+        "    ),\n",
+        "    keras.callbacks.ModelCheckpoint(\n",
+        "        filepath=\"checkpoint_path.keras\",\n",
+        "        monitor=\"val_accuracy\",\n",
+        "        save_best_only=True,\n",
+        "    )\n",
+        "]\n",
+        "\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 136
+        },
+        "id": "1FtcHhCJnIZR",
+        "outputId": "35e3964d-1a81-4344-bf24-06071bdbc521"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "error",
+          "ename": "SyntaxError",
+          "evalue": "ignored",
+          "traceback": [
+            "\u001b[0;36m  File \u001b[0;32m\"<ipython-input-7-e1757ae3255d>\"\u001b[0;36m, line \u001b[0;32m1\u001b[0m\n\u001b[0;31m    EarlyStopping()?\u001b[0m\n\u001b[0m                   ^\u001b[0m\n\u001b[0;31mSyntaxError\u001b[0m\u001b[0;31m:\u001b[0m invalid syntax\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
