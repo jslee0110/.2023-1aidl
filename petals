@@ -1,0 +1,1134 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "gpuType": "T4",
+      "authorship_tag": "ABX9TyNb33bRfEW781cSScIQ5Nen",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    },
+    "accelerator": "TPU"
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/jslee0110/.2023-1aidl/blob/main/petals\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "tpu-getting-started.zip 파일을 드라이브>petals 폴더에 저장한 코드입니다"
+      ],
+      "metadata": {
+        "id": "NE_-oZNs17-X"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from google.colab import drive\n",
+        "\n",
+        "# Mount Google Drive\n",
+        "drive.mount('/content/drive')\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "wb6-GJNe6frS",
+        "outputId": "2a7f2d23-44b1-4f82-cc0b-e2aaa6e2127c"
+      },
+      "execution_count": 50,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Drive already mounted at /content/drive; to attempt to forcibly remount, call drive.mount(\"/content/drive\", force_remount=True).\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install -qU efficientnet wandb"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "Qfz4w78O9bZX",
+        "outputId": "9e486861-ef44-4e1d-c12f-d1d698910bfe"
+      },
+      "execution_count": 9,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\u001b[?25l     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.0/2.0 MB\u001b[0m \u001b[31m?\u001b[0m eta \u001b[36m-:--:--\u001b[0m\r\u001b[2K     \u001b[91m━━━━━━━━━━━\u001b[0m\u001b[90m╺\u001b[0m\u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.6/2.0 MB\u001b[0m \u001b[31m17.1 MB/s\u001b[0m eta \u001b[36m0:00:01\u001b[0m\r\u001b[2K     \u001b[91m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[91m╸\u001b[0m \u001b[32m2.0/2.0 MB\u001b[0m \u001b[31m37.4 MB/s\u001b[0m eta \u001b[36m0:00:01\u001b[0m\r\u001b[2K     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m2.0/2.0 MB\u001b[0m \u001b[31m26.8 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[2K     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m50.7/50.7 kB\u001b[0m \u001b[31m4.5 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[2K     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m184.3/184.3 kB\u001b[0m \u001b[31m16.6 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[2K     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m206.5/206.5 kB\u001b[0m \u001b[31m15.4 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25h  Preparing metadata (setup.py) ... \u001b[?25l\u001b[?25hdone\n",
+            "\u001b[2K     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m62.7/62.7 kB\u001b[0m \u001b[31m6.5 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25h  Building wheel for pathtools (setup.py) ... \u001b[?25l\u001b[?25hdone\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "pip install tensorflow-addons"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "8DC4flPl9pfi",
+        "outputId": "1b0b3e4d-d1e9-4774-c040-0186e4f0cb64"
+      },
+      "execution_count": 11,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Looking in indexes: https://pypi.org/simple, https://us-python.pkg.dev/colab-wheels/public/simple/\n",
+            "Collecting tensorflow-addons\n",
+            "  Downloading tensorflow_addons-0.20.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (591 kB)\n",
+            "\u001b[2K     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m591.0/591.0 kB\u001b[0m \u001b[31m10.5 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hRequirement already satisfied: packaging in /usr/local/lib/python3.10/dist-packages (from tensorflow-addons) (23.1)\n",
+            "Collecting typeguard<3.0.0,>=2.7 (from tensorflow-addons)\n",
+            "  Downloading typeguard-2.13.3-py3-none-any.whl (17 kB)\n",
+            "Installing collected packages: typeguard, tensorflow-addons\n",
+            "Successfully installed tensorflow-addons-0.20.0 typeguard-2.13.3\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import math, re, os, random\n",
+        "import numpy as np\n",
+        "import pandas as pd\n",
+        "import wandb\n",
+        "from wandb.integration.keras import WandbCallback\n",
+        "from matplotlib import pyplot as plt\n",
+        "from sklearn.metrics import f1_score, precision_score, \\\n",
+        "                            recall_score, confusion_matrix\n",
+        "\n",
+        "import tensorflow as tf\n",
+        "from tensorflow_addons.metrics import F1Score\n",
+        "from tensorflow.keras import layers as L\n",
+        "from tensorflow.keras import backend as K\n",
+        "from tensorflow.keras import callbacks\n",
+        "from tensorflow.keras import applications as tf_applications\n",
+        "import efficientnet.tfkeras as efn\n",
+        "\n",
+        "\n",
+        "\n",
+        "print(\"TF version \" + tf.__version__)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "lKNbZe8I9hDq",
+        "outputId": "677cb11b-46a5-4fd4-a8f9-9fdd17e3ac95"
+      },
+      "execution_count": 13,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "TF version 2.12.0\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "try:\n",
+        "    from kaggle_secrets import UserSecretsClient\n",
+        "    user_secrets = UserSecretsClient()\n",
+        "    api_key = user_secrets.get_secret('wandb_key')\n",
+        "    wandb.login(key=api_key)\n",
+        "    anonymous = None\n",
+        "except:\n",
+        "    wandb.login(anonymous='must')\n",
+        "    print('To use your W&B account,\\nGo to Add-ons -> Secrets and provide your \\\n",
+        "           W&B access token. Use the Label name as WANDB. \\nGet your W&B access \\\n",
+        "           token from here: https://wandb.ai/authorize')"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 107
+        },
+        "id": "766uUPEU9wJ_",
+        "outputId": "2e473f52-5de3-46d0-a505-5daf0bcaad40"
+      },
+      "execution_count": 14,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<IPython.core.display.Javascript object>"
+            ],
+            "application/javascript": [
+              "\n",
+              "        window._wandbApiKey = new Promise((resolve, reject) => {\n",
+              "            function loadScript(url) {\n",
+              "            return new Promise(function(resolve, reject) {\n",
+              "                let newScript = document.createElement(\"script\");\n",
+              "                newScript.onerror = reject;\n",
+              "                newScript.onload = resolve;\n",
+              "                document.body.appendChild(newScript);\n",
+              "                newScript.src = url;\n",
+              "            });\n",
+              "            }\n",
+              "            loadScript(\"https://cdn.jsdelivr.net/npm/postmate/build/postmate.min.js\").then(() => {\n",
+              "            const iframe = document.createElement('iframe')\n",
+              "            iframe.style.cssText = \"width:0;height:0;border:none\"\n",
+              "            document.body.appendChild(iframe)\n",
+              "            const handshake = new Postmate({\n",
+              "                container: iframe,\n",
+              "                url: 'https://wandb.ai/authorize'\n",
+              "            });\n",
+              "            const timeout = setTimeout(() => reject(\"Couldn't auto authenticate\"), 5000)\n",
+              "            handshake.then(function(child) {\n",
+              "                child.on('authorize', data => {\n",
+              "                    clearTimeout(timeout)\n",
+              "                    resolve(data)\n",
+              "                });\n",
+              "            });\n",
+              "            })\n",
+              "        });\n",
+              "    "
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "\u001b[34m\u001b[1mwandb\u001b[0m: Appending key for api.wandb.ai to your netrc file: /root/.netrc\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "To use your W&B account,\n",
+            "Go to Add-ons -> Secrets and provide your            W&B access token. Use the Label name as WANDB. \n",
+            "Get your W&B access            token from here: https://wandb.ai/authorize\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "AUTO = tf.data.experimental.AUTOTUNE\n",
+        "\n",
+        "# Detect hardware, return appropriate distribution strategy\n",
+        "try:\n",
+        "    tpu = tf.distribute.cluster_resolver.TPUClusterResolver.connect() # TPU detection\n",
+        "    strategy = tf.distribute.TPUStrategy(tpu)\n",
+        "except ValueError:\n",
+        "    strategy = tf.distribute.MirroredStrategy() # for GPU or multi-GPU machines\n",
+        "\n",
+        "print(\"Number of accelerators: \", strategy.num_replicas_in_sync)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "jvIw8j3R93ng",
+        "outputId": "a92d8bb9-20fd-4435-d004-54ed230ff1f5"
+      },
+      "execution_count": 15,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "WARNING:tensorflow:TPU system grpc://10.41.15.146:8470 has already been initialized. Reinitializing the TPU can cause previously created variables on TPU to be lost.\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Number of accelerators:  8\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "IMAGE_SIZE = [224, 224] # 192, 224, 331, 512\n",
+        "EPOCHS = 30\n",
+        "BATCH_SIZE = 16 * strategy.num_replicas_in_sync\n",
+        "\n",
+        "# Model 1 (EfficientNet)\n",
+        "EFN = 7 # 0, 1, 2, 3, 4, 5, 6 or 7\n",
+        "EFN_WEIGHTS = 'noisy-student' # 'imagenet' or 'noisy-student'\n",
+        "\n",
+        "# Model 2 (DenseNet)\n",
+        "DN = 201 # 121, 169 or 201"
+      ],
+      "metadata": {
+        "id": "kvKeoJY39-bv"
+      },
+      "execution_count": 52,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "GCS_DS_PATH = '/content/drive/MyDrive/petals/tpu-getting-started'\n",
+        "\n",
+        "GCS_PATH_SELECT = { # available image sizes\n",
+        "    192: GCS_DS_PATH + '/tfrecords-jpeg-192x192',\n",
+        "    224: GCS_DS_PATH + '/tfrecords-jpeg-224x224',\n",
+        "    331: GCS_DS_PATH + '/tfrecords-jpeg-331x331',\n",
+        "    512: GCS_DS_PATH + '/tfrecords-jpeg-512x512'\n",
+        "}\n",
+        "GCS_PATH = GCS_PATH_SELECT[IMAGE_SIZE[0]]\n",
+        "\n",
+        "TRAINING_FILENAMES = tf.io.gfile.glob(GCS_PATH + '/train/*.tfrec')\n",
+        "VALIDATION_FILENAMES = tf.io.gfile.glob(GCS_PATH + '/val/*.tfrec')\n",
+        "TEST_FILENAMES = tf.io.gfile.glob(GCS_PATH + '/test/*.tfrec')\n"
+      ],
+      "metadata": {
+        "id": "DrnWJ-q-9_gv"
+      },
+      "execution_count": 53,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def decode_image(image_path):\n",
+        "    \"\"\"Decodes and resizes the JPEG image\"\"\"\n",
+        "    image = tf.io.read_file(image_path)  # Read the image file\n",
+        "    image = tf.image.decode_jpeg(image, channels=3)  # Decode the JPEG image\n",
+        "    image = tf.image.resize(image, IMAGE_SIZE)  # Resize the image to the desired size\n",
+        "    image = tf.cast(image, tf.float32) / 255.0  # Normalize the image\n",
+        "    return image\n",
+        "def load_dataset(filenames, labeled=True, ordered=False):\n",
+        "    \"\"\"Loads the JPEG image dataset\"\"\"\n",
+        "    ignore_order = tf.data.Options()\n",
+        "    if not ordered:\n",
+        "        ignore_order.experimental_deterministic = False\n",
+        "\n",
+        "    dataset = tf.data.Dataset.from_tensor_slices(filenames)\n",
+        "    dataset = dataset.with_options(ignore_order)\n",
+        "    dataset = dataset.map(lambda x: decode_image(x), num_parallel_calls=AUTO)\n",
+        "\n",
+        "    if labeled:\n",
+        "        # Modify this part if you have labels for your training data\n",
+        "        # For example, if you have a separate CSV file with labels, you can load it here and map the images to their corresponding labels\n",
+        "        # Example: dataset = dataset.map(lambda x: (x, get_label(x)), num_parallel_calls=AUTO)\n",
+        "        pass\n",
+        "\n",
+        "    return dataset\n"
+      ],
+      "metadata": {
+        "id": "UpbDd7YW-78b"
+      },
+      "execution_count": 56,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "np.set_printoptions(threshold=15, linewidth=80)\n",
+        "\n",
+        "def batch_to_numpy_images_and_labels(data):\n",
+        "    images, labels = data\n",
+        "    numpy_images = images.numpy()\n",
+        "    numpy_labels = labels.numpy()\n",
+        "    if numpy_labels.dtype == object: # binary string in this case, these are image ID strings\n",
+        "        numpy_labels = [None for _ in enumerate(numpy_images)]\n",
+        "    # If no labels, only image IDs, return None for labels (this is the case for test data)\n",
+        "    return numpy_images, numpy_labels\n",
+        "\n",
+        "def title_from_label_and_target(label, correct_label):\n",
+        "    if correct_label is None:\n",
+        "        return CLASSES[label], True\n",
+        "    correct = (label == correct_label)\n",
+        "    return \"{} [{}{}{}]\".format(CLASSES[label], 'OK' if correct else 'NO', u\"\\u2192\" if not correct else '',\n",
+        "                                CLASSES[correct_label] if not correct else ''), correct\n",
+        "\n",
+        "def display_one_flower(image, title, subplot, red=False, titlesize=16):\n",
+        "    plt.subplot(*subplot)\n",
+        "    plt.axis('off')\n",
+        "    plt.imshow(image)\n",
+        "    if len(title) > 0:\n",
+        "        plt.title(title, fontsize=int(titlesize) if not red else int(titlesize/1.2), color='red' if red else 'black', fontdict={'verticalalignment':'center'}, pad=int(titlesize/1.5))\n",
+        "    return (subplot[0], subplot[1], subplot[2]+1)\n",
+        "    \n",
+        "def display_batch_of_images(databatch, predictions=None):\n",
+        "    \"\"\"This will work with:\n",
+        "    display_batch_of_images(images)\n",
+        "    display_batch_of_images(images, predictions)\n",
+        "    display_batch_of_images((images, labels))\n",
+        "    display_batch_of_images((images, labels), predictions)\n",
+        "    \"\"\"\n",
+        "    # data\n",
+        "    images, labels = batch_to_numpy_images_and_labels(databatch)\n",
+        "    if labels is None:\n",
+        "        labels = [None for _ in enumerate(images)]\n",
+        "        \n",
+        "    # auto-squaring: this will drop data that does not fit into square or square-ish rectangle\n",
+        "    rows = int(math.sqrt(len(images)))\n",
+        "    cols = len(images)//rows\n",
+        "        \n",
+        "    # size and spacing\n",
+        "    FIGSIZE = 13.0\n",
+        "    SPACING = 0.1\n",
+        "    subplot=(rows,cols,1)\n",
+        "    if rows < cols:\n",
+        "        plt.figure(figsize=(FIGSIZE,FIGSIZE/cols*rows))\n",
+        "    else:\n",
+        "        plt.figure(figsize=(FIGSIZE/rows*cols,FIGSIZE))\n",
+        "    \n",
+        "    # display\n",
+        "    for i, (image, label) in enumerate(zip(images[:rows*cols], labels[:rows*cols])):\n",
+        "        title = '' if label is None else CLASSES[label]\n",
+        "        correct = True\n",
+        "        if predictions is not None:\n",
+        "            title, correct = title_from_label_and_target(predictions[i], label)\n",
+        "        dynamic_titlesize = FIGSIZE*SPACING/max(rows,cols)*40+3 # magic formula tested to work from 1x1 to 10x10 images\n",
+        "        subplot = display_one_flower(image, title, subplot, not correct, titlesize=dynamic_titlesize)\n",
+        "    \n",
+        "    #layout\n",
+        "    plt.tight_layout()\n",
+        "    if label is None and predictions is None:\n",
+        "        plt.subplots_adjust(wspace=0, hspace=0)\n",
+        "    else:\n",
+        "        plt.subplots_adjust(wspace=SPACING, hspace=SPACING)\n",
+        "    plt.show()\n",
+        "\n",
+        "def display_confusion_matrix(cmat, score, precision, recall):\n",
+        "    plt.figure(figsize=(15,15))\n",
+        "    ax = plt.gca()\n",
+        "    ax.matshow(cmat, cmap='Reds')\n",
+        "    ax.set_xticks(range(len(CLASSES)))\n",
+        "    ax.set_xticklabels(CLASSES, fontdict={'fontsize': 7})\n",
+        "    plt.setp(ax.get_xticklabels(), rotation=45, ha=\"left\", rotation_mode=\"anchor\")\n",
+        "    ax.set_yticks(range(len(CLASSES)))\n",
+        "    ax.set_yticklabels(CLASSES, fontdict={'fontsize': 7})\n",
+        "    plt.setp(ax.get_yticklabels(), rotation=45, ha=\"right\", rotation_mode=\"anchor\")\n",
+        "    titlestring = \"\"\n",
+        "    if score is not None:\n",
+        "        titlestring += 'f1 = {:.3f} '.format(score)\n",
+        "    if precision is not None:\n",
+        "        titlestring += '\\nprecision = {:.3f} '.format(precision)\n",
+        "    if recall is not None:\n",
+        "        titlestring += '\\nrecall = {:.3f} '.format(recall)\n",
+        "    if len(titlestring) > 0:\n",
+        "        ax.text(101, 1, titlestring, fontdict={'fontsize': 18, 'horizontalalignment':'right', 'verticalalignment':'top', 'color':'#804040'})\n",
+        "    plt.show()\n",
+        "    \n",
+        "def display_training_curves(training, validation, title, subplot):\n",
+        "    if subplot%10==1: # set up the subplots on the first call\n",
+        "        plt.subplots(figsize=(10,10), facecolor='#F0F0F0')\n",
+        "        plt.tight_layout()\n",
+        "    ax = plt.subplot(subplot)\n",
+        "    ax.set_facecolor('#F8F8F8')\n",
+        "    ax.plot(training)\n",
+        "    ax.plot(validation)\n",
+        "    ax.set_title('model '+ title)\n",
+        "    ax.set_ylabel(title)\n",
+        "    #ax.set_ylim(0.28,1.05)\n",
+        "    ax.set_xlabel('epoch')\n",
+        "    ax.legend(['train', 'valid.'])"
+      ],
+      "metadata": {
+        "id": "lHJ6wT6A_FWB"
+      },
+      "execution_count": 57,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def random_erasing(img, sl=0.1, sh=0.2, rl=0.4, p=0.3):\n",
+        "    h = tf.shape(img)[0]\n",
+        "    w = tf.shape(img)[1]\n",
+        "    c = tf.shape(img)[2]\n",
+        "    origin_area = tf.cast(h*w, tf.float32)\n",
+        "\n",
+        "    e_size_l = tf.cast(tf.round(tf.sqrt(origin_area * sl * rl)), tf.int32)\n",
+        "    e_size_h = tf.cast(tf.round(tf.sqrt(origin_area * sh / rl)), tf.int32)\n",
+        "\n",
+        "    e_height_h = tf.minimum(e_size_h, h)\n",
+        "    e_width_h = tf.minimum(e_size_h, w)\n",
+        "\n",
+        "    erase_height = tf.random.uniform(shape=[], minval=e_size_l, maxval=e_height_h, dtype=tf.int32)\n",
+        "    erase_width = tf.random.uniform(shape=[], minval=e_size_l, maxval=e_width_h, dtype=tf.int32)\n",
+        "\n",
+        "    erase_area = tf.zeros(shape=[erase_height, erase_width, c])\n",
+        "    erase_area = tf.cast(erase_area, tf.uint8)\n",
+        "\n",
+        "    pad_h = h - erase_height\n",
+        "    pad_top = tf.random.uniform(shape=[], minval=0, maxval=pad_h, dtype=tf.int32)\n",
+        "    pad_bottom = pad_h - pad_top\n",
+        "\n",
+        "    pad_w = w - erase_width\n",
+        "    pad_left = tf.random.uniform(shape=[], minval=0, maxval=pad_w, dtype=tf.int32)\n",
+        "    pad_right = pad_w - pad_left\n",
+        "\n",
+        "    erase_mask = tf.pad([erase_area], [[0,0],[pad_top, pad_bottom], [pad_left, pad_right], [0,0]], constant_values=1)\n",
+        "    erase_mask = tf.squeeze(erase_mask, axis=0)\n",
+        "    erased_img = tf.multiply(tf.cast(img,tf.float32), tf.cast(erase_mask, tf.float32))\n",
+        "\n",
+        "    return tf.cond(tf.random.uniform([], 0, 1) > p, lambda: tf.cast(img, img.dtype), lambda:  tf.cast(erased_img, img.dtype))"
+      ],
+      "metadata": {
+        "id": "qfF_-dJe_L9t"
+      },
+      "execution_count": 58,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def get_mat(rotation, shear, height_zoom, width_zoom, height_shift, width_shift):\n",
+        "    # returns 3x3 transformmatrix which transforms indicies\n",
+        "        \n",
+        "    # CONVERT DEGREES TO RADIANS\n",
+        "    rotation = math.pi * rotation / 180.\n",
+        "    shear = math.pi * shear / 180.\n",
+        "    \n",
+        "    # ROTATION MATRIX\n",
+        "    c1 = tf.math.cos(rotation)\n",
+        "    s1 = tf.math.sin(rotation)\n",
+        "    one = tf.constant([1],dtype='float32')\n",
+        "    zero = tf.constant([0],dtype='float32')\n",
+        "    rotation_matrix = tf.reshape( tf.concat([c1,s1,zero, -s1,c1,zero, zero,zero,one],axis=0),[3,3] )\n",
+        "        \n",
+        "    # SHEAR MATRIX\n",
+        "    c2 = tf.math.cos(shear)\n",
+        "    s2 = tf.math.sin(shear)\n",
+        "    shear_matrix = tf.reshape( tf.concat([one,s2,zero, zero,c2,zero, zero,zero,one],axis=0),[3,3] )    \n",
+        "    \n",
+        "    # ZOOM MATRIX\n",
+        "    zoom_matrix = tf.reshape( tf.concat([one/height_zoom,zero,zero, zero,one/width_zoom,zero, zero,zero,one],axis=0),[3,3] )\n",
+        "    \n",
+        "    # SHIFT MATRIX\n",
+        "    shift_matrix = tf.reshape( tf.concat([one,zero,height_shift, zero,one,width_shift, zero,zero,one],axis=0),[3,3] )\n",
+        "    \n",
+        "    return K.dot(K.dot(rotation_matrix, shear_matrix), K.dot(zoom_matrix, shift_matrix))\n",
+        "\n",
+        "def random_transform(image):\n",
+        "    # input image - is one image of size [dim,dim,3] not a batch of [b,dim,dim,3]\n",
+        "    # output - image randomly rotated, sheared, zoomed, and shifted\n",
+        "    DIM = IMAGE_SIZE[0]\n",
+        "    XDIM = DIM%2 #fix for size 331\n",
+        "    \n",
+        "    rot = 15. * tf.random.normal([1],dtype='float32')\n",
+        "    shr = 5. * tf.random.normal([1],dtype='float32') \n",
+        "    h_zoom = 1.0 + tf.random.normal([1],dtype='float32')/10.\n",
+        "    w_zoom = 1.0 + tf.random.normal([1],dtype='float32')/10.\n",
+        "    h_shift = 16. * tf.random.normal([1],dtype='float32') \n",
+        "    w_shift = 16. * tf.random.normal([1],dtype='float32') \n",
+        "  \n",
+        "    # GET TRANSFORMATION MATRIX\n",
+        "    m = get_mat(rot,shr,h_zoom,w_zoom,h_shift,w_shift) \n",
+        "\n",
+        "    # LIST DESTINATION PIXEL INDICES\n",
+        "    x = tf.repeat( tf.range(DIM//2,-DIM//2,-1), DIM )\n",
+        "    y = tf.tile( tf.range(-DIM//2,DIM//2),[DIM] )\n",
+        "    z = tf.ones([DIM*DIM],dtype='int32')\n",
+        "    idx = tf.stack( [x,y,z] )\n",
+        "    \n",
+        "    # ROTATE DESTINATION PIXELS ONTO ORIGIN PIXELS\n",
+        "    idx2 = K.dot(m,tf.cast(idx,dtype='float32'))\n",
+        "    idx2 = K.cast(idx2,dtype='int32')\n",
+        "    idx2 = K.clip(idx2,-DIM//2+XDIM+1,DIM//2)\n",
+        "    \n",
+        "    # FIND ORIGIN PIXEL VALUES           \n",
+        "    idx3 = tf.stack( [DIM//2-idx2[0,], DIM//2-1+idx2[1,]] )\n",
+        "    d = tf.gather_nd(image,tf.transpose(idx3))\n",
+        "        \n",
+        "    return tf.reshape(d,[DIM,DIM,3])"
+      ],
+      "metadata": {
+        "id": "XWhm9z3I_R8-"
+      },
+      "execution_count": 59,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def decode_image(image_data):\n",
+        "    image = tf.image.decode_jpeg(image_data, channels=3)\n",
+        "    image = tf.cast(image, tf.float32) / 255.0  # convert image to floats in [0, 1] range\n",
+        "    image = tf.reshape(image, [*IMAGE_SIZE, 3]) # explicit size needed for TPU\n",
+        "    return image\n",
+        "\n",
+        "def onehot(image,label):\n",
+        "    return image,tf.one_hot(label, len(CLASSES))\n",
+        "\n",
+        "def read_labeled_tfrecord(example):\n",
+        "    LABELED_TFREC_FORMAT = {\n",
+        "        \"image\": tf.io.FixedLenFeature([], tf.string), # tf.string means bytestring\n",
+        "        \"class\": tf.io.FixedLenFeature([], tf.int64),  # shape [] means single element\n",
+        "    }\n",
+        "    example = tf.io.parse_single_example(example, LABELED_TFREC_FORMAT)\n",
+        "    image = decode_image(example['image'])\n",
+        "    label = tf.cast(example['class'], tf.int32)\n",
+        "    return image, label # returns a dataset of (image, label) pairs\n",
+        "\n",
+        "def read_unlabeled_tfrecord(example):\n",
+        "    UNLABELED_TFREC_FORMAT = {\n",
+        "        \"image\": tf.io.FixedLenFeature([], tf.string), # tf.string means bytestring\n",
+        "        \"id\": tf.io.FixedLenFeature([], tf.string),  # shape [] means single element\n",
+        "        # class is missing, this competitions's challenge is to predict flower classes for the test dataset\n",
+        "    }\n",
+        "    example = tf.io.parse_single_example(example, UNLABELED_TFREC_FORMAT)\n",
+        "    image = decode_image(example['image'])\n",
+        "    idnum = example['id']\n",
+        "    return image, idnum # returns a dataset of image(s)\n",
+        "\n",
+        "def load_dataset(filenames, labeled=True, ordered=False):\n",
+        "    # Read from TFRecords. For optimal performance, reading from multiple files at once and\n",
+        "    # disregarding data order. Order does not matter since we will be shuffling the data anyway.\n",
+        "\n",
+        "    ignore_order = tf.data.Options()\n",
+        "    if not ordered:\n",
+        "        ignore_order.experimental_deterministic = False # disable order, increase speed\n",
+        "\n",
+        "    dataset = tf.data.TFRecordDataset(filenames, num_parallel_reads=AUTO) # automatically interleaves reads from multiple files\n",
+        "    dataset = dataset.with_options(ignore_order) # uses data as soon as it streams in, rather than in its original order\n",
+        "    dataset = dataset.map(read_labeled_tfrecord if labeled else read_unlabeled_tfrecord, num_parallel_calls=AUTO)\n",
+        "    # returns a dataset of (image, label) pairs if labeled=True or (image, id) pairs if labeled=False\n",
+        "    return dataset\n",
+        "\n",
+        "def data_augment(image, label):\n",
+        "    # data augmentation. Thanks to the dataset.prefetch(AUTO) statement in the next function (below),\n",
+        "    # this happens essentially for free on TPU. Data pipeline code is executed on the \"CPU\" part\n",
+        "    # of the TPU while the TPU itself is computing gradients.\n",
+        "    image = tf.image.random_flip_left_right(image)\n",
+        "    #image = random_transform(image)\n",
+        "    image = random_erasing(image)\n",
+        "    return image, label\n",
+        "\n",
+        "def data_hflip(image, idnum):\n",
+        "    image = tf.image.flip_left_right(image)\n",
+        "    return image, idnum\n",
+        "\n",
+        "def get_training_dataset(do_onehot=False):\n",
+        "    dataset = load_dataset(TRAINING_FILENAMES, labeled=True)\n",
+        "    dataset = dataset.map(data_augment, num_parallel_calls=AUTO)\n",
+        "    if do_onehot:\n",
+        "        dataset = dataset.map(onehot, num_parallel_calls=AUTO)\n",
+        "    dataset = dataset.repeat() # the training dataset must repeat for several epochs\n",
+        "    dataset = dataset.shuffle(2048)\n",
+        "    dataset = dataset.batch(BATCH_SIZE)\n",
+        "    dataset = dataset.prefetch(AUTO) # prefetch next batch while training (autotune prefetch buffer size)\n",
+        "    return dataset\n",
+        "\n",
+        "def get_validation_dataset(ordered=False, do_onehot=False):\n",
+        "    dataset = load_dataset(VALIDATION_FILENAMES, labeled=True, ordered=ordered)\n",
+        "    if do_onehot:\n",
+        "        dataset = dataset.map(onehot, num_parallel_calls=AUTO)\n",
+        "    dataset = dataset.batch(BATCH_SIZE)\n",
+        "    dataset = dataset.cache()\n",
+        "    dataset = dataset.prefetch(AUTO) # prefetch next batch while training (autotune prefetch buffer size)\n",
+        "    return dataset\n",
+        "\n",
+        "def get_test_dataset(ordered=False, augmented=False):\n",
+        "    dataset = load_dataset(TEST_FILENAMES, labeled=False, ordered=ordered)\n",
+        "    dataset = dataset.map(data_hflip, num_parallel_calls=AUTO)\n",
+        "    dataset = dataset.batch(BATCH_SIZE)\n",
+        "    dataset = dataset.prefetch(AUTO) # prefetch next batch while training (autotune prefetch buffer size)\n",
+        "    return dataset\n",
+        "\n",
+        "def count_data_items(filenames):\n",
+        "    # the number of data items is written in the name of the .tfrec files, i.e. flowers00-230.tfrec = 230 data items\n",
+        "    n = [int(re.compile(r\"-([0-9]*)\\.\").search(filename).group(1)) for filename in filenames]\n",
+        "    return np.sum(n)\n",
+        "\n",
+        "NUM_TRAINING_IMAGES = count_data_items(TRAINING_FILENAMES)\n",
+        "NUM_VALIDATION_IMAGES = count_data_items(VALIDATION_FILENAMES)\n",
+        "NUM_TEST_IMAGES = count_data_items(TEST_FILENAMES)\n",
+        "STEPS_PER_EPOCH = NUM_TRAINING_IMAGES // BATCH_SIZE\n",
+        "VALIDATION_STEPS = -(-NUM_VALIDATION_IMAGES // BATCH_SIZE) # The \"-(-//)\" trick rounds up instead of down :-)\n",
+        "TEST_STEPS = -(-NUM_TEST_IMAGES // BATCH_SIZE)             # The \"-(-//)\" trick rounds up instead of down :-)\n",
+        "print(f'Dataset: {NUM_TRAINING_IMAGES} training images, {NUM_VALIDATION_IMAGES} validation images, {NUM_TEST_IMAGES} unlabeled test images')"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "rmieD_RA_ayR",
+        "outputId": "88935ecd-9955-4581-d7be-65a86e67d19d"
+      },
+      "execution_count": 60,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Dataset: 12753 training images, 3712 validation images, 7382 unlabeled test images\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "training_dataset = get_training_dataset()\n",
+        "training_dataset = training_dataset.unbatch().batch(20)\n",
+        "train_batch = iter(training_dataset)\n"
+      ],
+      "metadata": {
+        "id": "aImKlenl_cIJ"
+      },
+      "execution_count": 27,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def load_image(filename):\n",
+        "    # 이미지 로드 및 전처리 작업 예시\n",
+        "    img = tf.io.read_file(filename)\n",
+        "    img = tf.image.decode_jpeg(img, channels=3)\n",
+        "    img = tf.image.resize(img, [image_size, image_size])\n",
+        "    img = img / 255.0  # 이미지를 0-1 범위로 정규화\n",
+        "    return img\n",
+        "import tensorflow as tf\n",
+        "\n",
+        "# 데이터셋 경로\n",
+        "GCS_PATH = '/content/drive/MyDrive/petals/tpu-getting-started'\n",
+        "\n",
+        "# 이미지 크기와 해당하는 데이터셋 경로\n",
+        "IMAGE_SIZE = {\n",
+        "    192: GCS_PATH + '/tfrecords-jpeg-192x192',\n",
+        "    224: GCS_PATH + '/tfrecords-jpeg-224x224',\n",
+        "    331: GCS_PATH + '/tfrecords-jpeg-331x331',\n",
+        "    512: GCS_PATH + '/tfrecords-jpeg-512x512'\n",
+        "}\n",
+        "\n",
+        "def load_image(filename):\n",
+        "    # 이미지 로드 및 전처리 작업\n",
+        "    return image\n",
+        "\n",
+        "# TFRecord 파일 파싱 함수\n",
+        "def parse_image(tfrecord):\n",
+        "    # TFRecord 파싱 작업 예시\n",
+        "    feature_description = {\n",
+        "        'image': tf.io.FixedLenFeature([], tf.string),\n",
+        "        'label': tf.io.FixedLenFeature([], tf.int64)\n",
+        "    }\n",
+        "    example = tf.io.parse_single_example(tfrecord, feature_description)\n",
+        "    image = tf.image.decode_jpeg(example['image'], channels=3)\n",
+        "    label = example['label']\n",
+        "    return image, label\n",
+        "\n",
+        "\n",
+        "def get_dataset(image_size, split='train'):\n",
+        "    file_pattern = IMAGE_SIZE[image_size] + '/' + split + '/*.tfrec'\n",
+        "    filenames = tf.io.gfile.glob(file_pattern)\n",
+        "    dataset = tf.data.TFRecordDataset(filenames)\n",
+        "    dataset = dataset.map(parse_image)\n",
+        "    return dataset\n",
+        "\n",
+        "# 데이터셋 사용 예시\n",
+        "image_size = 224  # 이미지 크기 선택 (192, 224, 331, 512 중 선택)\n",
+        "train_dataset = get_dataset(image_size, split='train')\n",
+        "validation_dataset = get_dataset(image_size, split='val')\n",
+        "test_dataset = get_dataset(image_size, split='test')\n",
+        "\n",
+        "\n",
+        "\n"
+      ],
+      "metadata": {
+        "id": "G--j8OYIAs1X"
+      },
+      "execution_count": 35,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# peer at test data\n",
+        "test_dataset = get_test_dataset()\n",
+        "test_dataset = test_dataset.unbatch().batch(20)\n",
+        "test_batch = iter(test_dataset)"
+      ],
+      "metadata": {
+        "id": "f_g5_iAFC1lA"
+      },
+      "execution_count": 36,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Learning rate schedule for TPU, GPU and CPU.\n",
+        "# Using an LR ramp up because fine-tuning a pre-trained model.\n",
+        "# Starting with a high LR would break the pre-trained weights.\n",
+        "def get_lr_callback(plot_schedule=False):\n",
+        "    LR_START = 0.00001\n",
+        "    LR_MAX = 0.00005 * strategy.num_replicas_in_sync\n",
+        "    LR_MIN = 0.00001\n",
+        "    LR_RAMPUP_EPOCHS = 5\n",
+        "    LR_SUSTAIN_EPOCHS = 0\n",
+        "    LR_EXP_DECAY = .8\n",
+        "\n",
+        "    def lrfn(epoch):\n",
+        "        if epoch < LR_RAMPUP_EPOCHS:\n",
+        "            lr = (LR_MAX - LR_START) / LR_RAMPUP_EPOCHS * epoch + LR_START\n",
+        "        elif epoch < LR_RAMPUP_EPOCHS + LR_SUSTAIN_EPOCHS:\n",
+        "            lr = LR_MAX\n",
+        "        else:\n",
+        "            lr = (LR_MAX - LR_MIN) * LR_EXP_DECAY**(epoch - LR_RAMPUP_EPOCHS - LR_SUSTAIN_EPOCHS) + LR_MIN\n",
+        "        return lr\n",
+        "    \n",
+        "    if plot_schedule:\n",
+        "        rng = [i for i in range(25 if EPOCHS < 25 else EPOCHS)]\n",
+        "        y = [lrfn(x) for x in rng]\n",
+        "        plt.plot(rng, y)\n",
+        "\n",
+        "    return callbacks.LearningRateScheduler(lrfn, verbose=0)"
+      ],
+      "metadata": {
+        "id": "iHneB9KSC4oA"
+      },
+      "execution_count": 45,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def load_and_fit_model(model_name, print_summary=False):\n",
+        "\n",
+        "    with strategy.scope():\n",
+        "        if model_name == 'efficientnet':\n",
+        "            base_model = getattr(efn, f'EfficientNetB{EFN}')(\n",
+        "                            weights=EFN_WEIGHTS, include_top=False,\n",
+        "                            pooling='avg', input_shape=(*IMAGE_SIZE, 3))\n",
+        "        elif model_name == 'densenet':\n",
+        "             base_model = getattr(tf_applications, f'DenseNet{DN}')(\n",
+        "                            weights='imagenet', include_top=False,\n",
+        "                            pooling='avg', input_shape=(*IMAGE_SIZE, 3))       \n",
+        "        else:\n",
+        "            raise UserError(\"Model name is not recognized - only \\\n",
+        "                    'densenet' or 'efficient' values are allowed \")\n",
+        "        model = tf.keras.Sequential([\n",
+        "            base_model,\n",
+        "            L.Dense(len(CLASSES), activation='softmax')\n",
+        "        ])\n",
+        "        \n",
+        "        model.compile(\n",
+        "            optimizer='adam',\n",
+        "            loss = 'categorical_crossentropy',\n",
+        "            metrics=[F1Score(len(CLASSES), average='macro')]\n",
+        "        )\n",
+        "\n",
+        "    if print_summary:\n",
+        "        model.summary()\n",
+        "        \n",
+        "    os.makedirs('checkpoints', exist_ok=True)\n",
+        "    \n",
+        "    lr_callback = get_lr_callback()\n",
+        "    chk_callback = callbacks.ModelCheckpoint(f'checkpoints/{model_name}_best.h5',\n",
+        "                     save_weights_only=True, monitor='val_f1_score',\n",
+        "                     mode='max', save_best_only=True, verbose=1)\n",
+        "    \n",
+        "    wandb.init(project='flower-classification-tpu-public', job_type='train', reinit=True)\n",
+        "    log_callback = WandbCallback() #callbacks.CSVLogger(f'logs/{model_name}_training.log')\n",
+        "\n",
+        "    _ = model.fit(get_training_dataset(do_onehot=True), \n",
+        "                  steps_per_epoch=STEPS_PER_EPOCH, \n",
+        "                  epochs=EPOCHS, \n",
+        "                  validation_data=get_validation_dataset(do_onehot=True),\n",
+        "                  validation_steps=VALIDATION_STEPS,\n",
+        "                  callbacks=[lr_callback, chk_callback, log_callback],\n",
+        "                  verbose=1)\n",
+        "    model.load_weights(f'checkpoints/{model_name}_best.h5')\n",
+        "    wandb.finish()\n",
+        "    return model"
+      ],
+      "metadata": {
+        "id": "QxFQafeTDPfL"
+      },
+      "execution_count": 46,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "models = []"
+      ],
+      "metadata": {
+        "id": "-PudNO59DTJP"
+      },
+      "execution_count": 47,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "models.append(load_and_fit_model('efficientnet'))"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 1000
+        },
+        "id": "-we2feueEToT",
+        "outputId": "856337d7-1b43-4c01-ede0-1fd190c11614"
+      },
+      "execution_count": 67,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Exception ignored in: <function Executor.__del__ at 0x7f5e7ce3c550>\n",
+            "Traceback (most recent call last):\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/tensorflow/python/eager/executor.py\", line 46, in __del__\n",
+            "    self.wait()\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/tensorflow/python/eager/executor.py\", line 65, in wait\n",
+            "    pywrap_tfe.TFE_ExecutorWaitForAllPendingNodes(self._handle)\n",
+            "tensorflow.python.framework.errors_impl.UnimplementedError: File system scheme '[local]' not implemented (file: '/bufferedio/content/drive/MyDrive/petals/tpu-getting-started/tfrecords-jpeg-224x224/train/00-224x224-798.tfrec')\n",
+            "Exception ignored in: <function Executor.__del__ at 0x7f5e7ce3c550>\n",
+            "Traceback (most recent call last):\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/tensorflow/python/eager/executor.py\", line 46, in __del__\n",
+            "    self.wait()\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/tensorflow/python/eager/executor.py\", line 65, in wait\n",
+            "    pywrap_tfe.TFE_ExecutorWaitForAllPendingNodes(self._handle)\n",
+            "tensorflow.python.framework.errors_impl.UnimplementedError: File system scheme '[local]' not implemented (file: '/bufferedio/content/drive/MyDrive/petals/tpu-getting-started/tfrecords-jpeg-224x224/train/00-224x224-798.tfrec')\n",
+            "Exception ignored in: <function Executor.__del__ at 0x7f5e7ce3c550>\n",
+            "Traceback (most recent call last):\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/tensorflow/python/eager/executor.py\", line 46, in __del__\n",
+            "    self.wait()\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/tensorflow/python/eager/executor.py\", line 65, in wait\n",
+            "    pywrap_tfe.TFE_ExecutorWaitForAllPendingNodes(self._handle)\n",
+            "tensorflow.python.framework.errors_impl.UnimplementedError: File system scheme '[local]' not implemented (file: '/bufferedio/content/drive/MyDrive/petals/tpu-getting-started/tfrecords-jpeg-224x224/train/00-224x224-798.tfrec')\n",
+            "Exception ignored in: <function Executor.__del__ at 0x7f5e7ce3c550>\n",
+            "Traceback (most recent call last):\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/tensorflow/python/eager/executor.py\", line 46, in __del__\n",
+            "    self.wait()\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/tensorflow/python/eager/executor.py\", line 65, in wait\n",
+            "    pywrap_tfe.TFE_ExecutorWaitForAllPendingNodes(self._handle)\n",
+            "tensorflow.python.framework.errors_impl.UnimplementedError: File system scheme '[local]' not implemented (file: '/bufferedio/content/drive/MyDrive/petals/tpu-getting-started/tfrecords-jpeg-224x224/train/00-224x224-798.tfrec')\n",
+            "Exception ignored in: <function Executor.__del__ at 0x7f5e7ce3c550>\n",
+            "Traceback (most recent call last):\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/tensorflow/python/eager/executor.py\", line 46, in __del__\n",
+            "    self.wait()\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/tensorflow/python/eager/executor.py\", line 65, in wait\n",
+            "    pywrap_tfe.TFE_ExecutorWaitForAllPendingNodes(self._handle)\n",
+            "tensorflow.python.framework.errors_impl.UnimplementedError: File system scheme '[local]' not implemented (file: '/bufferedio/content/drive/MyDrive/petals/tpu-getting-started/tfrecords-jpeg-224x224/train/00-224x224-798.tfrec')\n",
+            "Exception ignored in: <function Executor.__del__ at 0x7f5e7ce3c550>\n",
+            "Traceback (most recent call last):\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/tensorflow/python/eager/executor.py\", line 46, in __del__\n",
+            "    self.wait()\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/tensorflow/python/eager/executor.py\", line 65, in wait\n",
+            "    pywrap_tfe.TFE_ExecutorWaitForAllPendingNodes(self._handle)\n",
+            "tensorflow.python.framework.errors_impl.UnimplementedError: File system scheme '[local]' not implemented (file: '/bufferedio/content/drive/MyDrive/petals/tpu-getting-started/tfrecords-jpeg-224x224/train/00-224x224-798.tfrec')\n",
+            "Exception ignored in: <function Executor.__del__ at 0x7f5e7ce3c550>\n",
+            "Traceback (most recent call last):\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/tensorflow/python/eager/executor.py\", line 46, in __del__\n",
+            "    self.wait()\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/tensorflow/python/eager/executor.py\", line 65, in wait\n",
+            "    pywrap_tfe.TFE_ExecutorWaitForAllPendingNodes(self._handle)\n",
+            "tensorflow.python.framework.errors_impl.UnimplementedError: File system scheme '[local]' not implemented (file: '/bufferedio/content/drive/MyDrive/petals/tpu-getting-started/tfrecords-jpeg-224x224/train/00-224x224-798.tfrec')\n",
+            "Exception ignored in: <function Executor.__del__ at 0x7f5e7ce3c550>\n",
+            "Traceback (most recent call last):\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/tensorflow/python/eager/executor.py\", line 46, in __del__\n",
+            "    self.wait()\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/tensorflow/python/eager/executor.py\", line 65, in wait\n",
+            "    pywrap_tfe.TFE_ExecutorWaitForAllPendingNodes(self._handle)\n",
+            "tensorflow.python.framework.errors_impl.UnimplementedError: File system scheme '[local]' not implemented (file: '/bufferedio/content/drive/MyDrive/petals/tpu-getting-started/tfrecords-jpeg-224x224/train/00-224x224-798.tfrec')\n",
+            "Exception ignored in: <function Executor.__del__ at 0x7f5e7ce3c550>\n",
+            "Traceback (most recent call last):\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/tensorflow/python/eager/executor.py\", line 46, in __del__\n",
+            "    self.wait()\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/tensorflow/python/eager/executor.py\", line 65, in wait\n",
+            "    pywrap_tfe.TFE_ExecutorWaitForAllPendingNodes(self._handle)\n",
+            "tensorflow.python.framework.errors_impl.UnimplementedError: File system scheme '[local]' not implemented (file: '/bufferedio/content/drive/MyDrive/petals/tpu-getting-started/tfrecords-jpeg-224x224/train/00-224x224-798.tfrec')\n",
+            "Exception ignored in: <function Executor.__del__ at 0x7f5e7ce3c550>\n",
+            "Traceback (most recent call last):\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/tensorflow/python/eager/executor.py\", line 46, in __del__\n",
+            "    self.wait()\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/tensorflow/python/eager/executor.py\", line 65, in wait\n",
+            "    pywrap_tfe.TFE_ExecutorWaitForAllPendingNodes(self._handle)\n",
+            "tensorflow.python.framework.errors_impl.UnimplementedError: File system scheme '[local]' not implemented (file: '/bufferedio/content/drive/MyDrive/petals/tpu-getting-started/tfrecords-jpeg-224x224/train/00-224x224-798.tfrec')\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Downloading data from https://github.com/qubvel/efficientnet/releases/download/v0.0.1/efficientnet-b7_noisy-student_notop.h5\n",
+            "258068648/258068648 [==============================] - 5s 0us/step\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "\u001b[34m\u001b[1mwandb\u001b[0m: Currently logged in as: \u001b[33manony-mouse-581538\u001b[0m. Use \u001b[1m`wandb login --relogin`\u001b[0m to force relogin\n"
+          ]
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<IPython.core.display.HTML object>"
+            ],
+            "text/html": [
+              "Tracking run with wandb version 0.15.3"
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<IPython.core.display.HTML object>"
+            ],
+            "text/html": [
+              "Run data is saved locally in <code>/content/wandb/run-20230529_061926-cp71iu0f</code>"
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<IPython.core.display.HTML object>"
+            ],
+            "text/html": [
+              "Syncing run <strong><a href='https://wandb.ai/anony-mouse-581538/flower-classification-tpu-public/runs/cp71iu0f?apiKey=9756ae3f081a4e08d7bf8c7d70b4363393006c65' target=\"_blank\">confused-dragon-1</a></strong> to <a href='https://wandb.ai/anony-mouse-581538/flower-classification-tpu-public?apiKey=9756ae3f081a4e08d7bf8c7d70b4363393006c65' target=\"_blank\">Weights & Biases</a> (<a href='https://wandb.me/run' target=\"_blank\">docs</a>)<br/>"
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<IPython.core.display.HTML object>"
+            ],
+            "text/html": [
+              " View project at <a href='https://wandb.ai/anony-mouse-581538/flower-classification-tpu-public?apiKey=9756ae3f081a4e08d7bf8c7d70b4363393006c65' target=\"_blank\">https://wandb.ai/anony-mouse-581538/flower-classification-tpu-public?apiKey=9756ae3f081a4e08d7bf8c7d70b4363393006c65</a>"
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<IPython.core.display.HTML object>"
+            ],
+            "text/html": [
+              " View run at <a href='https://wandb.ai/anony-mouse-581538/flower-classification-tpu-public/runs/cp71iu0f?apiKey=9756ae3f081a4e08d7bf8c7d70b4363393006c65' target=\"_blank\">https://wandb.ai/anony-mouse-581538/flower-classification-tpu-public/runs/cp71iu0f?apiKey=9756ae3f081a4e08d7bf8c7d70b4363393006c65</a>"
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<IPython.core.display.HTML object>"
+            ],
+            "text/html": [
+              "Do NOT share these links with anyone. They can be used to claim your runs."
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m The save_model argument by default saves the model in the HDF5 format that cannot save custom objects like subclassed models and custom layers. This behavior will be deprecated in a future release in favor of the SavedModel format. Meanwhile, the HDF5 model is saved as W&B files and the SavedModel as W&B Artifacts.\n"
+          ]
+        },
+        {
+          "output_type": "error",
+          "ename": "TypeError",
+          "evalue": "ignored",
+          "traceback": [
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+            "\u001b[0;31mTypeError\u001b[0m                                 Traceback (most recent call last)",
+            "\u001b[0;32m<ipython-input-67-b403ca330308>\u001b[0m in \u001b[0;36m<cell line: 1>\u001b[0;34m()\u001b[0m\n\u001b[0;32m----> 1\u001b[0;31m \u001b[0mmodels\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mappend\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mload_and_fit_model\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m'efficientnet'\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m",
+            "\u001b[0;32m<ipython-input-46-7e912e44dc1d>\u001b[0m in \u001b[0;36mload_and_fit_model\u001b[0;34m(model_name, print_summary)\u001b[0m\n\u001b[1;32m     40\u001b[0m                   \u001b[0msteps_per_epoch\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mSTEPS_PER_EPOCH\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     41\u001b[0m                   \u001b[0mepochs\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mEPOCHS\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m---> 42\u001b[0;31m                   \u001b[0mvalidation_data\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mget_validation_dataset\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mdo_onehot\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;32mTrue\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m     43\u001b[0m                   \u001b[0mvalidation_steps\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mVALIDATION_STEPS\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     44\u001b[0m                   \u001b[0mcallbacks\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0mlr_callback\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mchk_callback\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mlog_callback\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;32m<ipython-input-60-2fcc63e600a1>\u001b[0m in \u001b[0;36mget_validation_dataset\u001b[0;34m(ordered, do_onehot)\u001b[0m\n\u001b[1;32m     68\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     69\u001b[0m \u001b[0;32mdef\u001b[0m \u001b[0mget_validation_dataset\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mordered\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;32mFalse\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mdo_onehot\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;32mFalse\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m---> 70\u001b[0;31m     \u001b[0mdataset\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mload_dataset\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mVALIDATION_FILENAMES\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mlabeled\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;32mTrue\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mordered\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mordered\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m     71\u001b[0m     \u001b[0;32mif\u001b[0m \u001b[0mdo_onehot\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     72\u001b[0m         \u001b[0mdataset\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mdataset\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mmap\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0monehot\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mnum_parallel_calls\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mAUTO\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;31mTypeError\u001b[0m: load_dataset() got an unexpected keyword argument 'ordered'"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "models.append(load_and_fit_model('densenet'))"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 323
+        },
+        "id": "ozEmWYdDDd_j",
+        "outputId": "26571a76-fb1a-4494-e6a0-70eac8137220"
+      },
+      "execution_count": 42,
+      "outputs": [
+        {
+          "output_type": "error",
+          "ename": "ValueError",
+          "evalue": "ignored",
+          "traceback": [
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+            "\u001b[0;31mValueError\u001b[0m                                Traceback (most recent call last)",
+            "\u001b[0;32m<ipython-input-42-2000a9424ca1>\u001b[0m in \u001b[0;36m<cell line: 1>\u001b[0;34m()\u001b[0m\n\u001b[0;32m----> 1\u001b[0;31m \u001b[0mmodels\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mappend\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mload_and_fit_model\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m'densenet'\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m",
+            "\u001b[0;32m<ipython-input-39-7e912e44dc1d>\u001b[0m in \u001b[0;36mload_and_fit_model\u001b[0;34m(model_name, print_summary)\u001b[0m\n\u001b[1;32m      7\u001b[0m                             pooling='avg', input_shape=(*IMAGE_SIZE, 3))\n\u001b[1;32m      8\u001b[0m         \u001b[0;32melif\u001b[0m \u001b[0mmodel_name\u001b[0m \u001b[0;34m==\u001b[0m \u001b[0;34m'densenet'\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 9\u001b[0;31m              base_model = getattr(tf_applications, f'DenseNet{DN}')(\n\u001b[0m\u001b[1;32m     10\u001b[0m                             \u001b[0mweights\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;34m'imagenet'\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0minclude_top\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;32mFalse\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     11\u001b[0m                             pooling='avg', input_shape=(*IMAGE_SIZE, 3))       \n",
+            "\u001b[0;32m/usr/local/lib/python3.10/dist-packages/keras/applications/densenet.py\u001b[0m in \u001b[0;36mDenseNet201\u001b[0;34m(include_top, weights, input_tensor, input_shape, pooling, classes, classifier_activation)\u001b[0m\n\u001b[1;32m    406\u001b[0m ):\n\u001b[1;32m    407\u001b[0m     \u001b[0;34m\"\"\"Instantiates the Densenet201 architecture.\"\"\"\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 408\u001b[0;31m     return DenseNet(\n\u001b[0m\u001b[1;32m    409\u001b[0m         \u001b[0;34m[\u001b[0m\u001b[0;36m6\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;36m12\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;36m48\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;36m32\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    410\u001b[0m         \u001b[0minclude_top\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;32m/usr/local/lib/python3.10/dist-packages/keras/applications/densenet.py\u001b[0m in \u001b[0;36mDenseNet\u001b[0;34m(blocks, include_top, weights, input_tensor, input_shape, pooling, classes, classifier_activation)\u001b[0m\n\u001b[1;32m    221\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    222\u001b[0m     \u001b[0;31m# Determine proper input shape\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 223\u001b[0;31m     input_shape = imagenet_utils.obtain_input_shape(\n\u001b[0m\u001b[1;32m    224\u001b[0m         \u001b[0minput_shape\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    225\u001b[0m         \u001b[0mdefault_size\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;36m224\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;32m/usr/local/lib/python3.10/dist-packages/keras/applications/imagenet_utils.py\u001b[0m in \u001b[0;36mobtain_input_shape\u001b[0;34m(input_shape, default_size, min_size, data_format, require_flatten, weights)\u001b[0m\n\u001b[1;32m    395\u001b[0m             \u001b[0;32mif\u001b[0m \u001b[0minput_shape\u001b[0m \u001b[0;32mis\u001b[0m \u001b[0;32mnot\u001b[0m \u001b[0;32mNone\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    396\u001b[0m                 \u001b[0;32mif\u001b[0m \u001b[0mlen\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0minput_shape\u001b[0m\u001b[0;34m)\u001b[0m \u001b[0;34m!=\u001b[0m \u001b[0;36m3\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 397\u001b[0;31m                     raise ValueError(\n\u001b[0m\u001b[1;32m    398\u001b[0m                         \u001b[0;34m\"`input_shape` must be a tuple of three integers.\"\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    399\u001b[0m                     )\n",
+            "\u001b[0;31mValueError\u001b[0m: `input_shape` must be a tuple of three integers."
+          ]
+        }
+      ]
+    }
+  ]
+}
